@@ -5,3 +5,4 @@ imaplib2.py
 anyjson.py
 tweetstream.py
 irclib.py
+config.py
