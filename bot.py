@@ -16,6 +16,7 @@ from daemon import DaemonThread
 import time
 import threading
 import traceback
+from commands import Commands
 
 import irclib
 
@@ -46,6 +47,7 @@ class IRCBot:
     self.irc.add_global_handler("disconnect", self.on_disconnect)
     self.irc.add_global_handler("part", self.on_part)
     self.irc.add_global_handler("pong", self.on_pong)
+    self.irc.add_global_handler("pubmsg", self.on_publicmsg)
 
     self.config = config
     self.log = log
@@ -226,6 +228,27 @@ class IRCBot:
       self.log.notice("IRC: Suppressed error: couldn't remove %s from " \
                  "self.channels" % event.target())
       self.log.info("".join(traceback.format_exc()))
+
+  def on_publicmsg(self, connection, event):
+    if connection != self.connection:
+      self.log.info("IRC: Incorrect connection in on_publicmsg")
+      return
+
+    incoming_message = event.arguments()[0].lstrip()
+
+    if incoming_message[0] == "!":
+        cmd = incoming_message.partition(" ")[0][1:]
+        args = incoming_message.partition(" ")[2]
+        src = event.source()
+        self.log.info("Command: \"%s\" Args: \"%s\" From: \"%s\"" % (cmd, args, src))
+        command = Commands(event.target(), self.command_info, self.command_callback)
+        command.parse(cmd, args, src)
+
+  def command_info(self, message):
+      self.log.info(message)
+
+  def command_callback(self, message, channel):
+      self.message(message, channel)
 
   def on_pong(self, connection, event):
     if connection != self.connection:
