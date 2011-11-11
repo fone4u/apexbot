@@ -28,6 +28,7 @@ class Commands:
 
         self.commands = {
                 "h" : self.help,
+                "help" : self.help,
                 "p" : self.paste,
                 "paste" : self.paste,
                 "pastie" : self.paste,
