@@ -61,3 +61,7 @@ class irc:
 
 class stdin:
   enable = True
+
+class commands:
+  # http://code.google.com/apis/loader/signup.html
+  googleapi = ""

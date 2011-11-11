@@ -236,6 +236,9 @@ class IRCBot:
 
     incoming_message = event.arguments()[0].lstrip()
 
+    if len(incoming_message) < 1:
+        return
+
     if incoming_message[0] == "!":
         cmd = incoming_message.partition(" ")[0][1:]
         args = incoming_message.partition(" ")[2]
