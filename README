@@ -19,7 +19,7 @@ Additional features by:
    - python-irclib (# aptitude install python-irclib)
    - tweetstream (# easy_install tweetstream)
    - imaplib2 (http://www.janeelix.com/piers/python/imaplib2.html)
-2) Edit the variables in ./config.py
+2) Edit the variables in ./config.sample.py and rename to ./config.py
 3) Run ./main.py
 
 = Legal =======================================================================
