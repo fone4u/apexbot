@@ -32,12 +32,12 @@ class Commands:
                 "p" : self.paste,
                 "paste" : self.paste,
                 "pastie" : self.paste,
-                "g" : self.google,
-                "google" : self.google,
-                "search" : self.google,
-                "c" : self.calc,
-                "calc" : self.calc,
-                "calculator" : self.calc
+                "g" : self.search,
+                "google" : self.search,
+                "search" : self.search,
+                "c" : self.calculator,
+                "calc" : self.calculator,
+                "calculator" : self.calculator
                 }
 
     def parse(self, cmd, args, origin):
@@ -54,7 +54,7 @@ class Commands:
             self.commands[cmd]()
         except:
             self.info("Command: Not found")
-    
+
     def help(self):
         self.callback("%s: ApexBot currently supports the following commands: paste warning (!p/!paste/!pastie) and Google search (!g/!google/!search)" % self.origin, self.channel)
 
@@ -64,14 +64,13 @@ class Commands:
         else:
             self.callback("Do not paste in the channel, please use http://pastie.org", self.channel)
 
-    def google(self):
+    def search(self):
         if self.args == "":
             self.info("Command: No search term entered")
             self.callback("%s: Please enter a search term" % self.origin, self.channel)
             return
 
         self.info("Command: Searching Google for \"%s\"" % self.args)
-        #self.callback("%s: Searching Google for \"%s\"" % (self.origin, self.args), self.channel)
 
         searchstring = urllib.quote(self.args, '')
         url = "https://ajax.googleapis.com/ajax/services/search/web?v=1.0&q=%s&key=%s&safe=moderate" % (searchstring, self.config.googleapi)
@@ -83,27 +82,25 @@ class Commands:
             decodeddata = json.load(data)
             data.close()
             result = (re.sub('&(%s);' % '|'.join(name2codepoint), lambda m: unichr(name2codepoint[m.group(1)]), decodeddata['responseData']['results'][0]['titleNoFormatting'].encode('utf-8')), decodeddata['responseData']['results'][0]['url'].encode('utf-8'))
+            self.info("Command: Sending results")
             self.callback("%s: %s" % (self.origin, result[0]), self.channel)
             self.callback("%s: %s" % (self.origin, result[1]), self.channel)
         except:
             self.info("Command: Failed to get url or no results")
             self.callback("%s: No results" % self.origin, self.channel)
 
-    def calc(self):
+    def calculator(self):
         if self.args == "":
             self.info("Command: No calculation entered")
-            self.callback("%s: Please enter a calculation!" % self.origin, self.channel)
+            self.callback("%s: Please enter a calculation" % self.origin, self.channel)
             return
-        else:
-            self.info("Command: Calculation " + self.args)
-            try:
-                result = eval(self.args)
-                result = str(result)
-                self.callback(self.origin + ": " + result, self.channel)
-            except:
-                self.info("Command: Calculation invalid")
-                self.callback(self.origin + ": Calculation Invalid", self.channel)
-           # self.info("Command: %s = %s" % (self.args), self.channel)
-           # self.callback("%s: %s = %s" % (self.origin, self.args, str(eval(self.args))), self.channel)
 
+        self.info("Command: Calculating %s" % self.args)
 
+        try:
+            result = str(eval(self.args))
+            self.info("Command: Answer = %s" % result)
+            self.callback("%s: %s" % (self.origin, result), self.channel)
+        except:
+            self.info("Command: Calculation invalid")
+            self.callback("%s: Calculation invalid" % self.origin, self.channel)
