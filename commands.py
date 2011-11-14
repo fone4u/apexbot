@@ -73,7 +73,7 @@ class Commands:
         self.info("Command: Searching Google for \"%s\"" % self.args)
         #self.callback("%s: Searching Google for \"%s\"" % (self.origin, self.args), self.channel)
 
-        searchstring = urllib.quote(self.args.encode('utf-8'), '')
+        searchstring = urllib.quote(self.args, '')
         url = "https://ajax.googleapis.com/ajax/services/search/web?v=1.0&q=%s&key=%s&safe=moderate" % (searchstring, self.config.googleapi)
 
         self.info("Command: Requesting url: %s" % url)
