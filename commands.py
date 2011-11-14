@@ -34,7 +34,10 @@ class Commands:
                 "pastie" : self.paste,
                 "g" : self.google,
                 "google" : self.google,
-                "search" : self.google
+                "search" : self.google,
+                "c" : self.calc,
+                "calc" : self.calc,
+                "calculator" : self.calc
                 }
 
     def parse(self, cmd, args, origin):
@@ -85,3 +88,22 @@ class Commands:
         except:
             self.info("Command: Failed to get url or no results")
             self.callback("%s: No results" % self.origin, self.channel)
+
+    def calc(self):
+        if self.args == "":
+            self.info("Command: No calculation entered")
+            self.callback("%s: Please enter a calculation!" % self.origin, self.channel)
+            return
+        else:
+            self.info("Command: Calculation " + self.args)
+            try:
+                result = eval(self.args)
+                result = str(result)
+                self.callback(self.origin + ": " + result, self.channel)
+            except:
+                self.info("Command: Calculation invalid")
+                self.callback(self.origin + ": Calculation Invalid", self.channel)
+           # self.info("Command: %s = %s" % (self.args), self.channel)
+           # self.callback("%s: %s = %s" % (self.origin, self.args, str(eval(self.args))), self.channel)
+
+
