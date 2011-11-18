@@ -1,6 +1,6 @@
 *.pyc
 *.swp
-griffonbot.log
+*.log
 imaplib2.py
 anyjson.py
 tweetstream.py
