@@ -37,8 +37,9 @@ def action_message(act):
   return "\x01ACTION %s \x01" % act
 
 class IRCBot:
-  def __init__(self, config, log):
+  def __init__(self, config, log, channellogger):
     log.debug("IRC: Setting up...")
+    self.channellogger = channellogger
 
     self.irc = NewIRC();
     self.irc.add_global_handler("welcome", self.on_connect)
@@ -48,6 +49,14 @@ class IRCBot:
     self.irc.add_global_handler("part", self.on_part)
     self.irc.add_global_handler("pong", self.on_pong)
     self.irc.add_global_handler("pubmsg", self.on_publicmsg)
+    
+    # For channel logger
+    if self.channellogger is not None:
+      self.irc.add_global_handler("quit", self.channellogger.log_event)
+      self.irc.add_global_handler("pubmsg", self.channellogger.log_event)
+      self.irc.add_global_handler("pubnotice", self.channellogger.log_event)
+      self.irc.add_global_handler("ctcp", self.channellogger.log_event)
+      self.irc.add_global_handler("ctcpreply", self.channellogger.log_event)
 
     self.config = config
     self.log = log
@@ -162,6 +171,9 @@ class IRCBot:
     self.reconnects = 0
  
   def on_join(self, connection, event):
+    if self.channellogger is not None:
+      self.channellogger.log_event(connection, event)
+
     if connection != self.connection:
       self.log.info("IRC: Incorrect connection in on_join")
       return
@@ -213,6 +225,9 @@ class IRCBot:
     self.irc.execute_delayed(0, self.connect)
 
   def on_part(self, connection, event):
+    if self.channellogger is not None:
+      self.channellogger.log_event(connection, event)
+
     if connection != self.connection:
       self.log.info("IRC: Incorrect connection in on_part")
       return

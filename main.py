@@ -21,6 +21,7 @@ from bot import IRCBot
 from daemon import wait
 from mail import Mail
 from stdin import Stdin
+from channellogger import ChannelLogger
 import config
 
 def main():
@@ -31,7 +32,13 @@ def main():
   log = Log(config.log)
 
   log.debug("Main: Setting up...")
-  bot = IRCBot(config.irc, log)
+  
+  channellogger = None
+
+  if config.channellogger.enable:
+    channellogger = ChannelLogger(config.channellogger, log)
+
+  bot = IRCBot(config.irc, log, channellogger)
 
   if config.twitter.enable:
     stream = Stream(config.twitter, bot.queue_message, log)
