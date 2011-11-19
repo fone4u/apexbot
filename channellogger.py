@@ -127,7 +127,7 @@ class ChannelLogger:
             self.log.info("ChannelLogger: Tried to write nothing to log")
             return False
 
-        self.log.info("ChannelLogger: %s" % log_string)
+        #self.log.info("ChannelLogger: %s" % log_string)
 
         # Get the logging directory from config and check if it exists.
         # If not, create it.
