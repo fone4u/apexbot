@@ -13,35 +13,18 @@
 from log import DEBUG, INFO, NOTICE, ERROR
 
 class log:
-  filename = "griffonbot.log"
+  filename = "bot.log"
   file     = DEBUG
   stderr   = INFO
-
-class twitter:
-  enable = True
-  username = "griffonbot"
-  password = ""
-  keywords = [ "#arhab", "#ukhas", "#cusf" ]
-  max_reconnect_wait = 60
-
-class mail:
-  enable = True
-  imap_server = "imap.gmail.com"
-  username = "griffonbot@gmail.com"
-  password = ""
-  max_reconnect_wait = 60
-
-  match = classmethod(lambda s,e: e['List-ID'] == "<ukhas.googlegroups.com>")
-  match_description = "emails sent to ukhas@googlegroups.com"
 
 class irc:
   server   = "irc.freenode.net"
   port     = 6667
-  nick     = "griffonbot"
+  nick     = "bot"
   password = ""
-  user     = "griffonbot"
-  realname = "GriffonBot [http://github.com/ssb/griffonbot]"
-  channels = [ "#griffonbot" ]
+  user     = "bot"
+  realname = "bot [http://github.com/PriyeshPatel/apexbot]"
+  channels = [ "#bot" ]
   max_reconnect_wait = 60
 
   class flood:
@@ -58,6 +41,27 @@ class irc:
 
     if mail.enable:
       con.action("is tracking %s" % mail.match_description)
+
+class channellogger:
+  enable = True
+  logdir = "channel-logs"
+
+class twitter:
+  enable = True
+  username = "bot"
+  password = ""
+  keywords = [ "#arhab", "#ukhas", "#cusf" ]
+  max_reconnect_wait = 60
+
+class mail:
+  enable = True
+  imap_server = "imap.gmail.com"
+  username = "bot@gmail.com"
+  password = ""
+  max_reconnect_wait = 60
+
+  match = classmethod(lambda s,e: e['List-ID'] == "<bot.googlegroups.com>")
+  match_description = "emails sent to bot@googlegroups.com"
 
 class stdin:
   enable = True
