@@ -48,7 +48,6 @@ class IRCBot:
     self.irc.add_global_handler("disconnect", self.on_disconnect)
     self.irc.add_global_handler("part", self.on_part)
     self.irc.add_global_handler("pong", self.on_pong)
-    self.irc.add_global_handler("pubmsg", self.on_publicmsg)
     
     # For channel logger
     if self.channellogger is not None:
@@ -57,6 +56,8 @@ class IRCBot:
       self.irc.add_global_handler("pubnotice", self.channellogger.log_event)
       self.irc.add_global_handler("ctcp", self.channellogger.log_event)
       self.irc.add_global_handler("ctcpreply", self.channellogger.log_event)
+
+    self.irc.add_global_handler("pubmsg", self.on_publicmsg)
 
     self.config = config
     self.log = log
@@ -141,7 +142,10 @@ class IRCBot:
 
     self.log.debug("IRC: flood.wait...")
     time.sleep(self.config.flood.wait)
- 
+
+    if self.channellogger is not None:
+      self.channellogger.log_message(self.config.nick, msg, channel)
+
   def connect(self):
     self.reconnecting = False
 

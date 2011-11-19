@@ -27,6 +27,41 @@ class ChannelLogger:
 
         self.config = config
         self.log = log
+        self.backlog = []
+
+    def log_message(self, n, m, c):
+        """
+        Given a nick and a message, write it to the log file.
+        """
+        
+        # Create the log string
+        logstr = "<%s> %s" % (n, m)
+
+        # Prepend the timestamp to the string
+        logstr = self.__prepend_timestamp(logstr)
+
+        # Write the string to the log
+        try:
+            d = datetime.now()
+            stamp = d.strftime("-%Y-%m-%d")
+            logfile = c.strip("#") + stamp
+        except:
+            self.log.info("ChannelLogger: Suppressed error - no event target")
+            logfile = "None"
+
+        self.backlog.append([logstr, logfile])
+
+    def __clear_backlog():
+        while self.backlog:
+            self.log.debug("ChannelLogger: Clearing backlog...")
+            l = self.backlog.pop[0]
+            logstr = l[0]
+            logfile = l[1]
+            if (self.__write_log(logstr, logfile)):
+                return True
+            else:
+                self.log.debug("ChannelLogger: Failed to write to the log file")
+                return False
 
     def log_event(self, c, e):
         """
@@ -49,7 +84,6 @@ class ChannelLogger:
           logstr = "-!- %s" % self.__parse_action(e)
         elif (e.eventtype() in ctcp and e.arguments()[0] == "ACTION"):
           user = e.source().rsplit('!')[0]
-          print e.arguments()
           msg = str(e.arguments()[1])
           logstr = " * %s %s" % (user, msg)
         else:
@@ -62,17 +96,21 @@ class ChannelLogger:
 
         # Write the string to the log
         try:
-            logfile = e.target().rsplit("#")[1] + ".log"
+            d = datetime.now()
+            stamp = d.strftime("-%Y-%m-%d")
+            logfile = e.target().strip("#") + stamp
         except:
-            self.log.info("ChannelLogger: Suppressed error - no event \
-                    target")
+            self.log.info("ChannelLogger: Suppressed error - no event target")
             logfile = "None"
+
         if (self.__write_log(logstr, logfile)):
             return True
         else:
-            self.log.debug("ChannelLogger: Failed to write to the \
-                    log file")
+            self.log.debug("ChannelLogger: Failed to write to the log file")
             return False
+
+        self.__clear_backlog()
+        self.log.debug("ChannelLogger: Backlog clearing triggered...")
 
     def __parse_action(self, event):
         """
@@ -110,7 +148,8 @@ class ChannelLogger:
 
         # Prepend the timestamp to the log entry
         d = datetime.now()
-        stamp = d.strftime("%Y-%m-%d %H:%M:%S")
+        #stamp = d.strftime("%Y-%m-%d %H:%M:%S")
+        stamp = d.strftime("%H:%M")
         logstr = "%s %s" % (stamp, log_string)
         return logstr
 
