@@ -45,7 +45,7 @@ class ChannelLogger:
         try:
             d = datetime.now()
             stamp = d.strftime("-%Y-%m-%d")
-            logfile = c.strip("#") + stamp
+            logfile = c + stamp
         except:
             self.log.info("ChannelLogger: Suppressed error - no event target")
             logfile = "None"
@@ -61,8 +61,6 @@ class ChannelLogger:
         Given instances of a Connection, and an Event, fully handle
         interpreting the event and writing it to the logfile.
         """
-
-        self.log.debug("ChannelLogger: ...from: %s" % e.target())
 
         messages = [ 'pubmsg', 'pubnotice' ]
         actions = [ 'join', 'quit', 'part', 'kick' ]
@@ -93,7 +91,7 @@ class ChannelLogger:
         try:
             d = datetime.now()
             stamp = d.strftime("-%Y-%m-%d")
-            logfile = e.target().strip("#") + stamp
+            logfile = e.target() + stamp
         except:
             self.log.info("ChannelLogger: Suppressed error - no event target")
             logfile = "None"

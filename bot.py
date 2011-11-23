@@ -269,10 +269,10 @@ class IRCBot:
         command.parse(cmd, args, src)
 
   def command_info(self, message):
-      self.log.info(message)
+    self.log.info(message)
 
   def command_callback(self, message, channel):
-      self.message(message, channel)
+    self.irc.execute_delayed(0, self.message, (message, channel, ))
 
   def on_pong(self, connection, event):
     if connection != self.connection:
