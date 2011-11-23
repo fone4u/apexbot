@@ -22,7 +22,7 @@ class Log:
   def __init__(self, config):
     self.config = config
     self.file = open(self.config.filename, "a", 1)
-    self.file.write("Griffonbot starting up: log began at %s\n" % \
+    self.file.write("ApexBot starting up: log began at %s\n" % \
                     time.strftime("%H:%M:%S", time.gmtime()))
 
   def msg(self, level, str):

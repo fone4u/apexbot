@@ -27,7 +27,8 @@ class ChannelLogger:
 
         self.config = config
         self.log = log
-        self.backlog = []
+
+        self.log.info("ChannelLogger: Started")
 
     def log_message(self, n, m, c):
         """
@@ -49,25 +50,19 @@ class ChannelLogger:
             self.log.info("ChannelLogger: Suppressed error - no event target")
             logfile = "None"
 
-        self.backlog.append([logstr, logfile])
-
-    def __clear_backlog():
-        while self.backlog:
-            self.log.debug("ChannelLogger: Clearing backlog...")
-            l = self.backlog.pop[0]
-            logstr = l[0]
-            logfile = l[1]
-            if (self.__write_log(logstr, logfile)):
-                return True
-            else:
-                self.log.debug("ChannelLogger: Failed to write to the log file")
-                return False
+        if (self.__write_log(logstr, logfile)):
+            return True
+        else:
+            self.log.debug("ChannelLogger: Failed to write to the log file")
+            return False
 
     def log_event(self, c, e):
         """
         Given instances of a Connection, and an Event, fully handle
         interpreting the event and writing it to the logfile.
         """
+
+        self.log.debug("ChannelLogger: ...from: %s" % e.target())
 
         messages = [ 'pubmsg', 'pubnotice' ]
         actions = [ 'join', 'quit', 'part', 'kick' ]
@@ -108,9 +103,6 @@ class ChannelLogger:
         else:
             self.log.debug("ChannelLogger: Failed to write to the log file")
             return False
-
-        self.__clear_backlog()
-        self.log.debug("ChannelLogger: Backlog clearing triggered...")
 
     def __parse_action(self, event):
         """

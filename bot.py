@@ -42,14 +42,7 @@ class IRCBot:
     self.channellogger = channellogger
 
     self.irc = NewIRC();
-    self.irc.add_global_handler("welcome", self.on_connect)
-    self.irc.add_global_handler("join", self.on_join)
-    self.irc.add_global_handler("kick", self.on_part)
-    self.irc.add_global_handler("disconnect", self.on_disconnect)
-    self.irc.add_global_handler("part", self.on_part)
-    self.irc.add_global_handler("pong", self.on_pong)
     
-    # For channel logger
     if self.channellogger is not None:
       self.irc.add_global_handler("quit", self.channellogger.log_event)
       self.irc.add_global_handler("pubmsg", self.channellogger.log_event)
@@ -57,6 +50,12 @@ class IRCBot:
       self.irc.add_global_handler("ctcp", self.channellogger.log_event)
       self.irc.add_global_handler("ctcpreply", self.channellogger.log_event)
 
+    self.irc.add_global_handler("welcome", self.on_connect)
+    self.irc.add_global_handler("join", self.on_join)
+    self.irc.add_global_handler("kick", self.on_part)
+    self.irc.add_global_handler("disconnect", self.on_disconnect)
+    self.irc.add_global_handler("part", self.on_part)
+    self.irc.add_global_handler("pong", self.on_pong)
     self.irc.add_global_handler("pubmsg", self.on_publicmsg)
 
     self.config = config
@@ -259,6 +258,9 @@ class IRCBot:
         return
 
     if incoming_message[0] == "!":
+        if event.target() not in self.channels:
+            self.log.info("IRC: Received command from incorrect channel")
+            return
         cmd = incoming_message.partition(" ")[0][1:]
         args = incoming_message.partition(" ")[2]
         src = event.source()
@@ -312,4 +314,3 @@ class JoinMessageConnection():
   def message(self, msg):
     self.bot.log.debug("IRC: JoinMessageConnection message() %s" % msg)
     self.bot.message(msg, self.channel)
-
