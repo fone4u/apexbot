@@ -49,6 +49,7 @@ class IRCBot:
       self.irc.add_global_handler("pubnotice", self.channellogger.log_event)
       self.irc.add_global_handler("ctcp", self.channellogger.log_event)
       self.irc.add_global_handler("ctcpreply", self.channellogger.log_event)
+      self.irc.add_global_handler("nick", self.channellogger.log_event)
 
     self.irc.add_global_handler("welcome", self.on_connect)
     self.irc.add_global_handler("join", self.on_join)

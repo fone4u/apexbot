@@ -67,7 +67,7 @@ class ChannelLogger:
         """
 
         messages = [ 'pubmsg', 'pubnotice' ]
-        actions = [ 'join', 'quit', 'part', 'kick']
+        actions = [ 'join', 'quit', 'part', 'kick', 'nick']
         ctcp = [ 'ctcp' ]
 
         logstr = ""
@@ -152,27 +152,28 @@ class ChannelLogger:
 
         user = event.source().rsplit('!')[0]
         host = event.source().rsplit('!')[1]
-        channel = event.target()
+        target = event.target()
         action = event.eventtype().upper()
 
         action_string = ""
 
         arg = ""
-        try:
+        if event.arguments():
             arg = event.arguments()[0]
-        except: 
-            pass
         
         if (action == 'JOIN'):
-            action_string = "%s [%s] has joined %s" % (user, host, channel)
+            action_string = "%s [%s] has joined %s" % (user, host, target)
         elif (action == 'QUIT'):
             action_string = "%s [%s] has quit [%s]" % (user, host, arg)
         elif (action == 'PART'):
-            action_string = "%s [%s] has parted %s [%s]" % (user, host, channel, arg)
+            action_string = "%s [%s] has parted %s [%s]" % (user, host, target, arg)
         elif (action == 'KICK'):
-            action_string = "%s was kicked from %s by %s [%s]" % (arg, channel, user, event.arguments()[1])
+            action_string = "%s was kicked from %s by %s [%s]" % (arg, target, user, event.arguments()[1])
+        elif (action == 'NICK'):
+            action_string = "%s is now known as %s" % (user, target)
         else:
-            action_string = "%s [%s] triggered event %s in %s" % (user, host, action, channel)
+            action_string = "%s [%s] triggered event %s in %s" % (user, host, action, target)
+
         return action_string
 
     def __prepend_timestamp(self, log_string):
