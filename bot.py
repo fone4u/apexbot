@@ -135,7 +135,7 @@ class IRCBot:
     for channel in self.channels:
       self.message(msg, channel)
 
-  def message(self, msg, channel):
+  def message(self, msg, channel, isaction = False):
     self.log.info("IRC: message -> %s '%s'" % (channel, msg))
     self.connection.privmsg(channel, msg)
 
@@ -143,7 +143,7 @@ class IRCBot:
     time.sleep(self.config.flood.wait)
 
     if self.channellogger is not None:
-      self.channellogger.log_message(self.config.nick, msg, channel)
+      self.channellogger.log_message(self.config.nick, msg, channel, isaction)
 
   def connect(self):
     self.reconnecting = False
@@ -176,6 +176,7 @@ class IRCBot:
   def on_join(self, connection, event):
     if self.channellogger is not None:
       self.channellogger.log_event(connection, event)
+      self.channellogger.add_quit(event)
 
     if connection != self.connection:
       self.log.info("IRC: Incorrect connection in on_join")
@@ -309,8 +310,8 @@ class JoinMessageConnection():
     self.channel = channel
 
   def action(self, msg):
-    self.message(action_message(msg))
+    self.message(action_message(msg), True)
 
-  def message(self, msg):
+  def message(self, msg, isaction = False):
     self.bot.log.debug("IRC: JoinMessageConnection message() %s" % msg)
-    self.bot.message(msg, self.channel)
+    self.bot.message(msg, self.channel, isaction)

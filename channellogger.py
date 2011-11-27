@@ -27,16 +27,20 @@ class ChannelLogger:
 
         self.config = config
         self.log = log
+        self.quit_messages = []
 
         self.log.info("ChannelLogger: Started")
 
-    def log_message(self, n, m, c):
+    def log_message(self, n, m, c, a = False):
         """
         Given a nick and a message, write it to the log file.
         """
-        
+
         # Create the log string
         logstr = "<%s> %s" % (n, m)
+
+        # If it is an action
+        if a: logstr = " * %s %s" % (n, m[8:])
 
         # Prepend the timestamp to the string
         logstr = self.__prepend_timestamp(logstr)
@@ -63,8 +67,9 @@ class ChannelLogger:
         """
 
         messages = [ 'pubmsg', 'pubnotice' ]
-        actions = [ 'join', 'quit', 'part', 'kick' ]
+        actions = [ 'join', 'quit', 'part', 'kick']
         ctcp = [ 'ctcp' ]
+
         logstr = ""
 
         # Determine whether the event was a msg/notice, or a join/part/quit
@@ -80,8 +85,7 @@ class ChannelLogger:
           msg = str(e.arguments()[1])
           logstr = " * %s %s" % (user, msg)
         else:
-          self.log.info("ChannelLogger: Unhandled IRC event: '%s'" 
-                  % e.eventtype())
+          self.log.info("ChannelLogger: Unhandled IRC event: '%s'" % e.eventtype())
           return False
 
         # Prepend the timestamp to the string
@@ -102,6 +106,43 @@ class ChannelLogger:
             self.log.debug("ChannelLogger: Failed to write to the log file")
             return False
 
+    def log_quit(self):
+        """
+        Log the quit action of the bot upon exiting.
+        """
+
+        for x in iter(self.quit_messages):
+            # Prepend the timestamp to the string
+            x[1] = self.__prepend_timestamp(x[1])
+
+            # Write the string to the log
+            try:
+                d = datetime.now()
+                stamp = d.strftime("-%Y-%m-%d")
+                logfile = x[0] + stamp
+            except:
+                self.log.info("ChannelLogger: Suppressed error - no event target")
+                logfile = "None"
+
+            if (self.__write_log(x[1], logfile)):
+                return True
+            else:
+                self.log.debug("ChannelLogger: Failed to write to the log file")
+                return False
+
+    def add_quit(self, event):
+        
+        logstr = ""
+        
+        user = event.source().rsplit('!')[0]
+        host = event.source().rsplit('!')[1]
+        channel = event.target()
+
+        logstr = "-!- %s [%s] has quit []" % (user, host)
+
+        if not [channel, logstr] in self.quit_messages:
+            self.quit_messages.append([channel, logstr])
+
     def __parse_action(self, event):
         """
         For an action, as defined in log_event(), construct a suitable
@@ -113,20 +154,25 @@ class ChannelLogger:
         host = event.source().rsplit('!')[1]
         channel = event.target()
         action = event.eventtype().upper()
+
         action_string = ""
+
+        arg = ""
+        try:
+            arg = event.arguments()[0]
+        except: 
+            pass
+        
         if (action == 'JOIN'):
             action_string = "%s [%s] has joined %s" % (user, host, channel)
         elif (action == 'QUIT'):
-            action_string = "%s [%s] has quit [%s]" % \
-                (user, host, event.arguments()[0])
+            action_string = "%s [%s] has quit [%s]" % (user, host, arg)
         elif (action == 'PART'):
-            action_string = "%s [%s] has parted %s" % (user, host, channel)
+            action_string = "%s [%s] has parted %s [%s]" % (user, host, channel, arg)
         elif (action == 'KICK'):
-            action_string = "%s [%s] was kicked from %s" % \
-                (user, host, channel)
+            action_string = "%s was kicked from %s by %s [%s]" % (arg, channel, user, event.arguments()[1])
         else:
-            action_string = "%s [%s] triggered event %s in %s" % \
-                (user, host, action, channel)
+            action_string = "%s [%s] triggered event %s in %s" % (user, host, action, channel)
         return action_string
 
     def __prepend_timestamp(self, log_string):
@@ -139,7 +185,7 @@ class ChannelLogger:
         # Prepend the timestamp to the log entry
         d = datetime.now()
         #stamp = d.strftime("%Y-%m-%d %H:%M:%S")
-        stamp = d.strftime("%H:%M")
+        stamp = d.strftime("%H:%M:%S")
         logstr = "%s %s" % (stamp, log_string)
         return logstr
 

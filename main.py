@@ -65,6 +65,7 @@ def main():
   wait()
 
   log.notice("Dead: Exiting...")
+  channellogger.log_quit()
   sys.exit(1)
 
 if __name__ == "__main__":
