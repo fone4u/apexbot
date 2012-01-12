@@ -97,6 +97,11 @@ class Commands:
 
         self.info("Command: Calculating %s" % self.args)
 
+        if not self.args.find("**") == -1:
+            self.info("Command: Calculation not allowed")
+            self.callback("%s: Calculation not allowed" % (self.origin), self.channel)
+            return
+
         try:
             result = str(eval(self.args))
             self.info("Command: Answer = %s" % result)
