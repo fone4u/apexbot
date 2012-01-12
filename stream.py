@@ -63,12 +63,14 @@ class ReconnectingTrackStream(tweetstream.TrackStream):
     # This. Is. Disgusting.
     self._conn.fp._sock.fp._sock.settimeout(60)
 
-  def next(self):
+  def __iter__(self):
+    super_iter = super(ReconnectingTrackStream, self).__iter__()
+
     while True:
       try:
-        data = super(ReconnectingTrackStream, self).next()
+        data = super_iter.next()
         self.reconnects = 0
-        return data
+        yield data
       except tweetstream.ConnectionError, e:
         self.reconnects += 1
         self.log.notice("Stream: Connection error; self.reconnects = %i" \
@@ -100,14 +102,12 @@ class Stream:
     self.log.debug("Stream: Running!")
 
     s = self.config
-    with ReconnectingTrackStream(self.log, s.username, s.password, s.keywords, s.max_reconnect_wait) as stream:
-      try:
-        for tweet in stream:
-          for f in [ format_tweet, crush_whitespace, fix_entities, fix_unicode ]:
-            tweet = f(tweet)
+    with ReconnectingTrackStream(self.log, s.username, s.password, \
+                                 s.keywords, s.max_reconnect_wait) as stream:
+      for tweet in stream:
+        for f in [ format_tweet, crush_whitespace, fix_entities, fix_unicode ]:
+          tweet = f(tweet)
 
-          self.log.debug("Stream: Pushing Tweet %s" % tweet)
-          self.callback(tweet)
-      except: 
-        self.log.info("Stream: Connection error; please check number of connections to Twitter API")
-        self.callback("Lost connection to Twitter")
+        self.log.debug("Stream: Pushing Tweet %s" % tweet)
+        self.callback(tweet)
+
