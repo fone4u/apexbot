@@ -90,5 +90,22 @@ class Commands:
             self.callback("%s: No results" % self.origin, self.channel)
 
     def calculator(self):
-        self.info("Command: Calculator is still in beta")
-        self.callback("%s: Calculator is still in beta" % self.origin, self.channel)
+        if self.args == "":
+            self.info("Command: No calculation entered")
+            self.callback("%s: Please enter a calculation" % self.origin, self.channel)
+            return
+
+        self.info("Command: Calculating %s" % self.args)
+
+        if not self.args.find("**") == -1:
+            self.info("Command: Calculation not allowed")
+            self.callback("%s: Calculation not allowed" % (self.origin), self.channel)
+            return
+
+        try:
+            result = str(eval(self.args))
+            self.info("Command: Answer = %s" % result)
+            self.callback("%s: %s" % (self.origin, result), self.channel)
+        except:
+            self.info("Command: Calculation invalid")
+            self.callback("%s: Calculation invalid" % self.origin, self.channel)
