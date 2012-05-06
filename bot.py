@@ -256,6 +256,8 @@ class IRCBot:
             self.command_callback("Afternoon %s" % origin, event.target())
         elif (not inc_msg.find("evening") == -1) and (not inc_msg.find(self.config.nick) == -1):
             self.command_callback("Evening %s" % origin, event.target())
+        elif (not inc_msg.find("night") == -1) and (not inc_msg.find(self.config.nick) == -1):
+            self.command_callback("Good night %s" % origin, event.target())
 
   def command_info(self, message):
       self.log.info(message)
