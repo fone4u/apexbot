@@ -239,13 +239,23 @@ class IRCBot:
     if len(incoming_message) < 1:
         return
 
+    cmd = incoming_message.partition(" ")[0][1:]
+    args = incoming_message.partition(" ")[2]
+    src = event.source()
+
     if incoming_message[0] == "!":
-        cmd = incoming_message.partition(" ")[0][1:]
-        args = incoming_message.partition(" ")[2]
-        src = event.source()
         self.log.info("Command: \"%s\" Args: \"%s\" From: \"%s\"" % (cmd, args, src))
         command = Commands(event.target(), self.command_info, self.command_callback)
         command.parse(cmd, args, src)
+    else:
+        inc_msg = incoming_message.strip(" \t\n\r").lower()
+        origin = src.partition("!")[0]
+        if (not inc_msg.find("morning") == -1) and (not inc_msg.find(self.config.nick) == -1):
+            self.command_callback("Morning %s" % origin, event.target())
+        elif (not inc_msg.find("afternoon") == -1) and (not inc_msg.find(self.config.nick) == -1):
+            self.command_callback("Afternoon %s" % origin, event.target())
+        elif (not inc_msg.find("evening") == -1) and (not inc_msg.find(self.config.nick) == -1):
+            self.command_callback("Evening %s" % origin, event.target())
 
   def command_info(self, message):
       self.log.info(message)

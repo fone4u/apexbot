@@ -56,7 +56,7 @@ class Commands:
             self.info("Command: Not found")
 
     def help(self):
-        self.callback("%s: ApexBot currently supports the following commands: paste warning (!p/!paste/!pastie) and Google search (!g/!google/!search)" % self.origin, self.channel)
+        self.callback("%s: ApexBot currently supports the following commands: paste warning (!p/!paste/!pastie), Google search (!g/!google/!search) and calculator (!c/!calc/!calculator)" % self.origin, self.channel)
 
     def paste(self):
         if self.args != "":
